@@ -60,8 +60,8 @@ public class KafkaProducerConfig {
         Map<String, Object> props = new HashMap<>();
 
         // Адрес Kafka брокера. Убедитесь, что указанный адрес соответствует вашему Kafka серверу.
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "INSIDE-KAFKA:9093"); // Укажите адрес вашего Kafka сервера
-        logger.debug("Bootstrap server: INSIDE-KAFKA:9093");
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "INSIDE-KAFKA:9092"); // Укажите адрес вашего Kafka сервера
+        logger.debug("Bootstrap server: INSIDE-KAFKA:9092");
 
         // Сериализаторы для ключей и значений сообщений. В данном случае используем StringSerializer.
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class); // Сериализатор для ключей

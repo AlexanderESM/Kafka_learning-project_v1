@@ -28,7 +28,7 @@ public class KafkaConsumerConfig {
     private static final Logger logger = LoggerFactory.getLogger(KafkaConsumerConfig.class); // Логгер для KafkaConsumerConfig
 
     // Адрес Kafka брокера (замените на реальный адрес вашего Kafka сервера)
-    private final String bootstrapServers = "localhost:9093";
+    private final String bootstrapServers = "localhost:9092";
 
     /**
      * Конфигурации для Kafka Consumer.
