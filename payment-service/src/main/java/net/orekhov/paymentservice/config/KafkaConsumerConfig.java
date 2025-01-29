@@ -16,57 +16,86 @@ import org.springframework.kafka.listener.ContainerProperties;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Конфигурация потребителя Kafka для службы платежей.
+ * Этот класс конфигурирует потребителя, который получает сообщения из Kafka topic
+ * и обрабатывает их в соответствии с бизнес-логикой.
+ */
 @Configuration
 @EnableKafka
 public class KafkaConsumerConfig {
 
-    private final String bootstrapServers = "localhost:9093"; // Replace with your Kafka server
+    private final String bootstrapServers = "localhost:9093"; // Адрес Kafka сервера, замените на ваш
 
-    // Kafka Consumer Configurations
+    /**
+     * Конфигурация для Kafka Consumer.
+     * Этот метод задает настройки для подключения к Kafka.
+     *
+     * @return Карта с настройками для Consumer.
+     */
     @Bean
     public Map<String, Object> consumerConfigs() {
         Map<String, Object> props = new HashMap<>();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, "payment-service-group");
-        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest"); // "latest" for new messages, "earliest" for all
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers); // Адрес Kafka сервера
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, "payment-service-group"); // ID группы потребителей
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class); // Сериализатор ключей
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class); // Сериализатор значений
+        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest"); // "latest" для получения новых сообщений, "earliest" для всех сообщений
         return props;
     }
 
-    // Consumer Factory
+    /**
+     * Создает ConsumerFactory для Kafka Consumer.
+     * Используется для создания экземпляров потребителей, которые будут обрабатывать сообщения.
+     *
+     * @return ConsumerFactory для создания потребителей Kafka
+     */
     @Bean
     public ConsumerFactory<String, String> consumerFactory() {
-        return new DefaultKafkaConsumerFactory<>(consumerConfigs());
+        return new DefaultKafkaConsumerFactory<>(consumerConfigs()); // Создает новый Consumer с заданными конфигурациями
     }
 
-    // Create Kafka listener for messages
+    /**
+     * Создает контейнер для слушателя сообщений Kafka.
+     * Этот метод настраивает контейнер, который будет прослушивать сообщения из заданного Kafka topic.
+     *
+     * @return MessageListenerContainer, который будет слушать сообщения из Kafka
+     */
     @Bean
     public MessageListenerContainer messageListenerContainer() {
-        // Configure the ContainerProperties
-        ContainerProperties containerProps = new ContainerProperties("payment-topic"); // Replace with your topic name
+        // Настройка параметров контейнера для слушателя
+        ContainerProperties containerProps = new ContainerProperties("payment-topic"); // Замените на ваш Kafka topic
 
-        // Set the message listener
+        // Устанавливаем слушателя сообщений
         containerProps.setMessageListener(new MyMessageListener());
 
-        // Create the listener container with the consumer factory and the container properties
+        // Создаем контейнер для слушателя с использованием ConsumerFactory и настроек контейнера
         ConcurrentMessageListenerContainer<String, String> container =
                 new ConcurrentMessageListenerContainer<>(consumerFactory(), containerProps);
 
-        // Set concurrency level (number of threads to handle messages)
+        // Устанавливаем уровень параллелизма (количество потоков для обработки сообщений)
         container.setConcurrency(3);
 
         return container;
     }
 
-    // Message Listener implementation
+    /**
+     * Реализация слушателя сообщений Kafka.
+     * Этот класс будет обрабатывать полученные сообщения.
+     */
     private static class MyMessageListener implements MessageListener<String, String> {
+        /**
+         * Метод обработки сообщений.
+         * Здесь можно реализовать бизнес-логику для обработки полученных сообщений.
+         *
+         * @param record Сообщение, полученное из Kafka topic.
+         */
         @Override
         public void onMessage(ConsumerRecord<String, String> record) {
-            // Process the message here
+            // Получаем сообщение из Kafka
             String message = record.value();
             System.out.println("Received message: " + message);
-            // Implement the payment processing logic here
+            // Здесь должна быть логика обработки сообщения, например, обработка платежей
         }
     }
 }

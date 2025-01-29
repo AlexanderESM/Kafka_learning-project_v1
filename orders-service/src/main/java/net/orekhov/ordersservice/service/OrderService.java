@@ -4,42 +4,68 @@ import net.orekhov.ordersservice.model.Order;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
+/**
+ * Сервис для обработки заказов. Этот сервис отвечает за создание заказов, обновление статусов заказов
+ * и отправку данных о заказах в Kafka.
+ */
 @Service
 public class OrderService {
 
-    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final KafkaTemplate<String, String> kafkaTemplate; // KafkaTemplate для отправки сообщений в Kafka
 
-    // Constructor injection of KafkaTemplate for producing messages
+    /**
+     * Конструктор для внедрения зависимости KafkaTemplate.
+     *
+     * @param kafkaTemplate KafkaTemplate для отправки сообщений в Kafka
+     */
     public OrderService(KafkaTemplate<String, String> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    // Create an order and send order details to Kafka
+    /**
+     * Метод для создания заказа и отправки его данных в Kafka.
+     * Преобразует объект заказа в строку и отправляет его в Kafka topic.
+     *
+     * @param order Объект заказа, который нужно создать
+     */
     public void createOrder(Order order) {
-        // Convert Order object to JSON or String format (you can use libraries like Jackson for JSON)
+        // Преобразование объекта заказа в строку (можно использовать Jackson для преобразования в JSON)
         String orderDetails = "OrderID: " + order.getOrderId() +
                 ", Product: " + order.getProduct() +
                 ", Quantity: " + order.getQuantity() +
                 ", Price: " + order.getPrice() +
                 ", Status: " + order.getStatus();
 
-        // Send the order details to Kafka topic
+        // Отправка данных о заказе в Kafka в topic "orders"
         kafkaTemplate.send("orders", orderDetails);
 
-        // You can add additional logic here like saving the order to a database if needed
+        // Логирование информации о созданном заказе
         System.out.println("Order created and sent to Kafka: " + orderDetails);
+
+        // Дополнительно можно добавить логику для сохранения заказа в базе данных
     }
 
-    // Example method to update the order status
+    /**
+     * Метод для обновления статуса заказа.
+     * В реальном приложении этот метод должен взаимодействовать с базой данных.
+     *
+     * @param orderId Идентификатор заказа
+     * @param status Новый статус заказа
+     */
     public void updateOrderStatus(String orderId, String status) {
-        // Here you would typically interact with a database to update the status
-        // But for this example, we're just printing out the status update.
+        // В реальном приложении здесь будет логика для обновления статуса в базе данных
+        // Для этого примера выводим сообщение в консоль
         System.out.println("Updating order " + orderId + " status to " + status);
     }
 
-    // Example method to retrieve order details (this could interact with a database)
+    /**
+     * Метод для получения данных о заказе. В реальном приложении этот метод должен взаимодействовать с базой данных.
+     *
+     * @param orderId Идентификатор заказа
+     * @return Объект заказа с мокированными данными
+     */
     public Order getOrderDetails(String orderId) {
-        // This is just a mock implementation, you would replace it with real database logic
+        // Мокированная реализация, в реальном приложении нужно будет получать данные из базы данных
         return new Order(orderId, "customer123", "Laptop", 2, 1500.00, "Created");
     }
 }
