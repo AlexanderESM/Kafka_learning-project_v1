@@ -15,65 +15,100 @@ import org.springframework.kafka.listener.ContainerProperties;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Конфигурация для Kafka Consumer в сервисе доставки.
+ * Настраивает потребителей Kafka для обработки сообщений с темой доставки.
+ */
 @Configuration
 @EnableKafka
 public class KafkaConsumerConfig {
 
-    private final String bootstrapServers = "localhost:9093"; // Replace with your Kafka server address
+    // Адрес Kafka брокера (замените на реальный адрес вашего Kafka сервера)
+    private final String bootstrapServers = "localhost:9093";
 
-    // Kafka Consumer Configurations
+    /**
+     * Конфигурации для Kafka Consumer.
+     * Настраиваются параметры подключения, десериализаторы и политики обработки оффсетов.
+     *
+     * @return Map с настройками для Kafka Consumer.
+     */
     @Bean
     public Map<String, Object> consumerConfigs() {
         Map<String, Object> props = new HashMap<>();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, "shipping-service-group");
-        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest"); // "latest" for new messages, "earliest" for all
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers); // Адрес Kafka сервера
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, "shipping-service-group"); // Идентификатор группы потребителей
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class); // Десериализатор ключа
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class); // Десериализатор значения
+        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest"); // Обработка оффсетов ("earliest" для всех сообщений)
         return props;
     }
 
-    // Consumer Factory
+    /**
+     * Фабрика потребителей Kafka.
+     * Создает потребителя с использованием указанных конфигураций.
+     *
+     * @return ConsumerFactory для создания экземпляров Kafka Consumer.
+     */
     @Bean
     public ConsumerFactory<String, String> consumerFactory() {
         return new DefaultKafkaConsumerFactory<>(consumerConfigs());
     }
 
-    // Create Kafka listener for messages
+    /**
+     * Создает контейнер для прослушивания сообщений из Kafka.
+     * Контейнер обрабатывает сообщения с определенной темы и назначает слушателя.
+     *
+     * @return MessageListenerContainer для обработки сообщений.
+     */
     @Bean
     public MessageListenerContainer messageListenerContainer() {
-        // Configure the ContainerProperties
-        ContainerProperties containerProps = new ContainerProperties("shipping-topic"); // Replace with your topic name
+        // Настройка параметров контейнера (например, указание темы)
+        ContainerProperties containerProps = new ContainerProperties("shipping-topic"); // Укажите тему Kafka
 
-        // Set the message listener
+        // Установка слушателя сообщений
         containerProps.setMessageListener(new ShippingMessageListener());
 
-        // Create the listener container with the consumer factory and the container properties
+        // Создание контейнера с фабрикой потребителей и настройками контейнера
         ConcurrentMessageListenerContainer<String, String> container =
                 new ConcurrentMessageListenerContainer<>(consumerFactory(), containerProps);
 
-        // Set concurrency level (number of threads to handle messages)
+        // Установка уровня параллелизма (количество потоков для обработки сообщений)
         container.setConcurrency(3);
 
         return container;
     }
 
-    // Message Listener implementation
+    /**
+     * Реализация слушателя сообщений для обработки сообщений о доставке.
+     */
     private static class ShippingMessageListener implements MessageListener<String, String> {
+
+        /**
+         * Метод, который вызывается при получении сообщения.
+         * Обрабатывает сообщение и вызывает логику обработки доставки.
+         *
+         * @param record Сообщение, полученное из Kafka.
+         */
         @Override
         public void onMessage(org.apache.kafka.clients.consumer.ConsumerRecord<String, String> record) {
-            // Process the message here
+            // Извлекаем сообщение из записи
             String message = record.value();
             System.out.println("Received shipping message: " + message);
-            // Implement the shipping processing logic here
+
+            // Логика обработки сообщения о доставке
             processShippingMessage(message);
         }
 
-        // Example method to handle the shipping message
+        /**
+         * Пример метода для обработки сообщения о доставке.
+         * В этом методе можно распарсить сообщение и инициировать процесс доставки.
+         *
+         * @param message Сообщение о доставке для обработки.
+         */
         private void processShippingMessage(String message) {
-            // Implement logic to process the shipping message (e.g., create shipping order)
+            // Логика для обработки сообщения (например, создание заказа на доставку)
             System.out.println("Processing shipping for message: " + message);
-            // For instance, parse the message and process the shipping order based on it
+            // Например, можно распарсить сообщение и обработать заказ на доставку
         }
     }
 }
