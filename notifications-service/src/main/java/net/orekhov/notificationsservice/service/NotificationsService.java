@@ -1,5 +1,7 @@
 package net.orekhov.notificationsservice.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class NotificationsService {
 
+    private static final Logger logger = LoggerFactory.getLogger(NotificationsService.class);
     private final KafkaTemplate<String, String> kafkaTemplate;
 
     /**
@@ -32,7 +35,7 @@ public class NotificationsService {
     @KafkaListener(topics = "orders", groupId = "notifications-group")
     public void listen(String message) {
         // Логируем сообщение, полученное из Kafka
-        System.out.println("Received order notification: " + message);
+        logger.info("Received order notification: {}", message);
 
         // Логика обработки уведомления
         // Например, отправка уведомления пользователю по email, SMS и т.д.
@@ -47,7 +50,11 @@ public class NotificationsService {
      */
     private void sendNotificationToUser(String message) {
         // Логируем процесс отправки уведомления
-        // В реальном приложении можно интегрировать сервисы для отправки email, SMS и т.д.
-        System.out.println("Sending notification to user: " + message);
+        logger.info("Sending notification to user: {}", message);
+
+        // Реализация отправки уведомлений (например, email, SMS и т.д.)
+        // В реальной ситуации, вы можете интегрировать сервисы отправки.
+        // Здесь будет вывод на консоль для примера.
+        System.out.println("Notification sent to user: " + message);
     }
 }

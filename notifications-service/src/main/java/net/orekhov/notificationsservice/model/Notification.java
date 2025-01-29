@@ -1,10 +1,15 @@
 package net.orekhov.notificationsservice.model;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Модель уведомления, которая содержит информацию о сообщении, получателе и идентификаторе.
  * Этот класс используется для представления уведомлений в сервисе уведомлений.
  */
 public class Notification {
+
+    private static final Logger logger = LoggerFactory.getLogger(Notification.class);
 
     private String id;         // Идентификатор уведомления
     private String message;    // Текст сообщения уведомления
@@ -15,6 +20,7 @@ public class Notification {
      * Используется для создания пустого объекта уведомления.
      */
     public Notification() {
+        logger.debug("Creating an empty Notification object.");
     }
 
     /**
@@ -28,6 +34,7 @@ public class Notification {
         this.id = id;
         this.message = message;
         this.recipient = recipient;
+        logger.info("Notification created: {}", this.toString());
     }
 
     /**

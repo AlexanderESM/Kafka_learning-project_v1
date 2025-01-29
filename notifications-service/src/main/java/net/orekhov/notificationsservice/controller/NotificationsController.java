@@ -1,5 +1,7 @@
 package net.orekhov.notificationsservice.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,6 +12,9 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/notifications")
 public class NotificationsController {
+
+    // Логгер для логирования событий в этом контроллере
+    private static final Logger logger = LoggerFactory.getLogger(NotificationsController.class);
 
     private final KafkaTemplate<String, String> kafkaTemplate;
 
@@ -32,8 +37,19 @@ public class NotificationsController {
      */
     @PostMapping("/send")
     public String sendNotification(@RequestParam String message) {
-        // Отправляем сообщение в Kafka, в тему "notifications"
-        kafkaTemplate.send("notifications", message);
+        // Логируем начало отправки уведомления
+        logger.info("Sending notification message: {}", message);
+
+        try {
+            // Отправляем сообщение в Kafka, в тему "notifications"
+            kafkaTemplate.send("notifications", message);
+
+            // Логируем успешную отправку
+            logger.info("Notification successfully sent: {}", message);
+        } catch (Exception e) {
+            // Логируем ошибку при отправке сообщения
+            logger.error("Failed to send notification message: {}", message, e);
+        }
 
         // Возвращаем подтверждение об отправке уведомления
         return "Notification sent: " + message;

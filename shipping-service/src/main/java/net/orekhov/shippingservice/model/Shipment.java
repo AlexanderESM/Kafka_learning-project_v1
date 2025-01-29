@@ -1,5 +1,8 @@
 package net.orekhov.shippingservice.model;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.time.LocalDate;
 
 /**
@@ -7,6 +10,8 @@ import java.time.LocalDate;
  * Содержит информацию о доставке, такую как номер отслеживания, метод доставки, статус и даты.
  */
 public class Shipment {
+
+    private static final Logger logger = LoggerFactory.getLogger(Shipment.class); // Логгер для класса
 
     private Long shipmentId; // Уникальный идентификатор отправки
     private Long orderId; // Идентификатор заказа, связанного с отправкой
@@ -20,6 +25,7 @@ public class Shipment {
      * Конструктор без параметров для создания пустого объекта Shipment.
      */
     public Shipment() {
+        logger.debug("Creating an empty shipment object"); // Логируем создание пустого объекта
     }
 
     /**
@@ -41,6 +47,9 @@ public class Shipment {
         this.status = status;
         this.shippingDate = shippingDate;
         this.deliveryDate = deliveryDate;
+
+        logger.info("Shipment created with ID: {}, Order ID: {}, Tracking Number: {}, Shipping Method: {}, Status: {}, Shipping Date: {}, Delivery Date: {}",
+                shipmentId, orderId, trackingNumber, shippingMethod, status, shippingDate, deliveryDate); // Логируем создание отправки
     }
 
     // Getters и setters для всех полей
@@ -61,6 +70,7 @@ public class Shipment {
      */
     public void setShipmentId(Long shipmentId) {
         this.shipmentId = shipmentId;
+        logger.debug("Shipment ID set to: {}", shipmentId); // Логируем установку ID отправки
     }
 
     /**
@@ -79,6 +89,7 @@ public class Shipment {
      */
     public void setOrderId(Long orderId) {
         this.orderId = orderId;
+        logger.debug("Order ID set to: {}", orderId); // Логируем установку ID заказа
     }
 
     /**
@@ -97,6 +108,7 @@ public class Shipment {
      */
     public void setTrackingNumber(String trackingNumber) {
         this.trackingNumber = trackingNumber;
+        logger.debug("Tracking number set to: {}", trackingNumber); // Логируем установку номера отслеживания
     }
 
     /**
@@ -115,6 +127,7 @@ public class Shipment {
      */
     public void setShippingMethod(String shippingMethod) {
         this.shippingMethod = shippingMethod;
+        logger.debug("Shipping method set to: {}", shippingMethod); // Логируем установку метода доставки
     }
 
     /**
@@ -133,6 +146,7 @@ public class Shipment {
      */
     public void setStatus(String status) {
         this.status = status;
+        logger.debug("Status set to: {}", status); // Логируем установку статуса
     }
 
     /**
@@ -151,6 +165,7 @@ public class Shipment {
      */
     public void setShippingDate(LocalDate shippingDate) {
         this.shippingDate = shippingDate;
+        logger.debug("Shipping date set to: {}", shippingDate); // Логируем установку даты отправки
     }
 
     /**
@@ -169,6 +184,7 @@ public class Shipment {
      */
     public void setDeliveryDate(LocalDate deliveryDate) {
         this.deliveryDate = deliveryDate;
+        logger.debug("Delivery date set to: {}", deliveryDate); // Логируем установку даты доставки
     }
 
     /**
@@ -178,7 +194,7 @@ public class Shipment {
      */
     @Override
     public String toString() {
-        return "Shipment{" +
+        String shipmentDetails = "Shipment{" +
                 "shipmentId=" + shipmentId +
                 ", orderId=" + orderId +
                 ", trackingNumber='" + trackingNumber + '\'' +
@@ -187,5 +203,8 @@ public class Shipment {
                 ", shippingDate=" + shippingDate +
                 ", deliveryDate=" + deliveryDate +
                 '}';
+
+        logger.info("Shipment toString: {}", shipmentDetails); // Логируем строковое представление отправки
+        return shipmentDetails;
     }
 }

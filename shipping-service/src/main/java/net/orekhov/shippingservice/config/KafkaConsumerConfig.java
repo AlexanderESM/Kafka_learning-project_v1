@@ -2,6 +2,8 @@ package net.orekhov.shippingservice.config;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
@@ -23,6 +25,8 @@ import java.util.Map;
 @EnableKafka
 public class KafkaConsumerConfig {
 
+    private static final Logger logger = LoggerFactory.getLogger(KafkaConsumerConfig.class); // Логгер для KafkaConsumerConfig
+
     // Адрес Kafka брокера (замените на реальный адрес вашего Kafka сервера)
     private final String bootstrapServers = "localhost:9093";
 
@@ -34,12 +38,16 @@ public class KafkaConsumerConfig {
      */
     @Bean
     public Map<String, Object> consumerConfigs() {
+        logger.debug("Configuring Kafka Consumer with bootstrap servers: {}", bootstrapServers); // Логируем конфигурацию
+
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers); // Адрес Kafka сервера
         props.put(ConsumerConfig.GROUP_ID_CONFIG, "shipping-service-group"); // Идентификатор группы потребителей
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class); // Десериализатор ключа
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class); // Десериализатор значения
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest"); // Обработка оффсетов ("earliest" для всех сообщений)
+
+        logger.info("Kafka Consumer configs successfully created."); // Логируем успешную настройку конфигурации
         return props;
     }
 
@@ -51,6 +59,7 @@ public class KafkaConsumerConfig {
      */
     @Bean
     public ConsumerFactory<String, String> consumerFactory() {
+        logger.debug("Creating Kafka ConsumerFactory."); // Логируем создание фабрики потребителей
         return new DefaultKafkaConsumerFactory<>(consumerConfigs());
     }
 
@@ -62,6 +71,8 @@ public class KafkaConsumerConfig {
      */
     @Bean
     public MessageListenerContainer messageListenerContainer() {
+        logger.debug("Creating MessageListenerContainer for shipping-topic."); // Логируем создание контейнера
+
         // Настройка параметров контейнера (например, указание темы)
         ContainerProperties containerProps = new ContainerProperties("shipping-topic"); // Укажите тему Kafka
 
@@ -75,6 +86,7 @@ public class KafkaConsumerConfig {
         // Установка уровня параллелизма (количество потоков для обработки сообщений)
         container.setConcurrency(3);
 
+        logger.info("MessageListenerContainer created and concurrency set to 3."); // Логируем успешное создание контейнера
         return container;
     }
 
@@ -82,6 +94,8 @@ public class KafkaConsumerConfig {
      * Реализация слушателя сообщений для обработки сообщений о доставке.
      */
     private static class ShippingMessageListener implements MessageListener<String, String> {
+
+        private static final Logger logger = LoggerFactory.getLogger(ShippingMessageListener.class); // Логгер для ShippingMessageListener
 
         /**
          * Метод, который вызывается при получении сообщения.
@@ -93,7 +107,8 @@ public class KafkaConsumerConfig {
         public void onMessage(org.apache.kafka.clients.consumer.ConsumerRecord<String, String> record) {
             // Извлекаем сообщение из записи
             String message = record.value();
-            System.out.println("Received shipping message: " + message);
+
+            logger.debug("Received shipping message: {}", message); // Логируем получение сообщения
 
             // Логика обработки сообщения о доставке
             processShippingMessage(message);
@@ -106,9 +121,10 @@ public class KafkaConsumerConfig {
          * @param message Сообщение о доставке для обработки.
          */
         private void processShippingMessage(String message) {
+            logger.info("Processing shipping for message: {}", message); // Логируем начало обработки сообщения
+
             // Логика для обработки сообщения (например, создание заказа на доставку)
-            System.out.println("Processing shipping for message: " + message);
-            // Например, можно распарсить сообщение и обработать заказ на доставку
+            // Можно добавить дополнительные шаги логирования здесь для отслеживания ошибок и прогресса
         }
     }
 }

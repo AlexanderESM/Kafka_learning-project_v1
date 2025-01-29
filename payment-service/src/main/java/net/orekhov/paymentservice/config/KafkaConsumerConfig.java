@@ -3,6 +3,8 @@ package net.orekhov.paymentservice.config;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
@@ -25,6 +27,7 @@ import java.util.Map;
 @EnableKafka
 public class KafkaConsumerConfig {
 
+    private static final Logger logger = LoggerFactory.getLogger(KafkaConsumerConfig.class); // Логгер для конфигурации
     private final String bootstrapServers = "localhost:9093"; // Адрес Kafka сервера, замените на ваш
 
     /**
@@ -35,6 +38,7 @@ public class KafkaConsumerConfig {
      */
     @Bean
     public Map<String, Object> consumerConfigs() {
+        logger.info("Configuring Kafka Consumer with bootstrap servers: {}", bootstrapServers); // Логирование конфигурации
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers); // Адрес Kafka сервера
         props.put(ConsumerConfig.GROUP_ID_CONFIG, "payment-service-group"); // ID группы потребителей
@@ -52,6 +56,7 @@ public class KafkaConsumerConfig {
      */
     @Bean
     public ConsumerFactory<String, String> consumerFactory() {
+        logger.info("Creating Kafka ConsumerFactory with the provided configurations"); // Логирование создания фабрики
         return new DefaultKafkaConsumerFactory<>(consumerConfigs()); // Создает новый Consumer с заданными конфигурациями
     }
 
@@ -63,6 +68,7 @@ public class KafkaConsumerConfig {
      */
     @Bean
     public MessageListenerContainer messageListenerContainer() {
+        logger.info("Creating Kafka message listener container for topic: payment-topic"); // Логирование создания контейнера
         // Настройка параметров контейнера для слушателя
         ContainerProperties containerProps = new ContainerProperties("payment-topic"); // Замените на ваш Kafka topic
 
@@ -84,6 +90,9 @@ public class KafkaConsumerConfig {
      * Этот класс будет обрабатывать полученные сообщения.
      */
     private static class MyMessageListener implements MessageListener<String, String> {
+
+        private static final Logger logger = LoggerFactory.getLogger(MyMessageListener.class); // Логгер для слушателя
+
         /**
          * Метод обработки сообщений.
          * Здесь можно реализовать бизнес-логику для обработки полученных сообщений.
@@ -94,8 +103,18 @@ public class KafkaConsumerConfig {
         public void onMessage(ConsumerRecord<String, String> record) {
             // Получаем сообщение из Kafka
             String message = record.value();
-            System.out.println("Received message: " + message);
+
+            // Логируем полученное сообщение
+            logger.info("Received message from Kafka topic 'payment-topic': {}", message);
+
             // Здесь должна быть логика обработки сообщения, например, обработка платежей
+            try {
+                // Пример обработки
+                // processPayment(message);
+                logger.info("Processed payment message successfully: {}", message);
+            } catch (Exception e) {
+                logger.error("Error processing payment message: {}", message, e);
+            }
         }
     }
 }

@@ -1,6 +1,8 @@
 package net.orekhov.paymentservice.service;
 
 import net.orekhov.paymentservice.model.Payment;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -13,6 +15,8 @@ import java.util.Optional;
  */
 @Service
 public class PaymentService {
+
+    private static final Logger logger = LoggerFactory.getLogger(PaymentService.class); // Логгер для PaymentService
 
     // Хранилище для платежей (используется для имитации базы данных)
     private final Map<Long, Payment> paymentStore = new HashMap<>();
@@ -28,12 +32,15 @@ public class PaymentService {
      * @return Созданный платеж с установленным уникальным идентификатором.
      */
     public Payment createPayment(Payment payment) {
+        logger.debug("Creating payment: {}", payment); // Логируем создание платежа
+
         // Устанавливаем уникальный идентификатор платежа
         payment.setId(paymentIdCounter++);
 
         // Сохраняем платеж в хранилище
         paymentStore.put(payment.getId(), payment);
 
+        logger.info("Payment created with ID: {}", payment.getId()); // Логируем успешное создание платежа
         return payment;
     }
 
@@ -44,8 +51,17 @@ public class PaymentService {
      * @return Платеж с указанным идентификатором или null, если такой платеж не найден.
      */
     public Payment getPaymentById(Long paymentId) {
-        // Возвращаем платеж из хранилища по его идентификатору
-        return paymentStore.get(paymentId);
+        logger.debug("Fetching payment with ID: {}", paymentId); // Логируем попытку получить платеж
+
+        Payment payment = paymentStore.get(paymentId);
+
+        if (payment == null) {
+            logger.warn("Payment with ID: {} not found", paymentId); // Логируем предупреждение, если платеж не найден
+        } else {
+            logger.info("Payment found: {}", payment); // Логируем успешный поиск платежа
+        }
+
+        return payment;
     }
 
     /**
@@ -56,17 +72,18 @@ public class PaymentService {
      * @return Обновленный платеж, если он был найден, или null, если платеж с таким идентификатором не существует.
      */
     public Payment updatePaymentStatus(Long paymentId, String status) {
-        // Находим платеж по идентификатору
+        logger.debug("Updating status of payment with ID: {} to status: {}", paymentId, status); // Логируем обновление статуса
+
         Payment payment = paymentStore.get(paymentId);
 
-        // Если платеж найден, обновляем его статус
         if (payment != null) {
             payment.setStatus(status);
+            logger.info("Payment status updated: {}", payment); // Логируем успешное обновление
             return payment;
+        } else {
+            logger.warn("Payment with ID: {} not found for status update", paymentId); // Логируем, если платеж не найден
+            return null;
         }
-
-        // Если платеж не найден, возвращаем null
-        return null;
     }
 
     /**
@@ -76,10 +93,16 @@ public class PaymentService {
      * @return true, если платеж был успешно удален, или false, если такого платежа не было.
      */
     public boolean deletePayment(Long paymentId) {
-        // Удаляем платеж из хранилища и возвращаем результат
-        return paymentStore.remove(paymentId) != null;
-    }
+        logger.debug("Deleting payment with ID: {}", paymentId); // Логируем попытку удаления
 
-    // Дополнительные методы могут быть добавлены для расширения бизнес-логики
-    // Например, можно добавить проверку на валидность платежа или логику обработки платежа.
+        boolean isDeleted = paymentStore.remove(paymentId) != null;
+
+        if (isDeleted) {
+            logger.info("Payment with ID: {} successfully deleted", paymentId); // Логируем успешное удаление
+        } else {
+            logger.warn("Payment with ID: {} not found for deletion", paymentId); // Логируем, если платеж не найден
+        }
+
+        return isDeleted;
+    }
 }
