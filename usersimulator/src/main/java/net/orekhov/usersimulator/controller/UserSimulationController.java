@@ -28,11 +28,11 @@ public class UserSimulationController {
     /**
      * Запускает симуляцию действий пользователя.
      *
-     * @param count Количество раз, которое будет выполнена симуляция (по умолчанию 1).
+     * @param count Количество раз, которое будет выполнена симуляция (по умолчанию 100).
      * @return Строка с результатом выполнения симуляции.
      */
     @GetMapping("/simulate")
-    public String simulateUserAction(@RequestParam(defaultValue = "1") int count) {
+    public String simulateUserAction(@RequestParam(defaultValue = "100") int count) {
         logger.info("Запуск симуляции действий пользователя ({} раз)", count);
 
         try {

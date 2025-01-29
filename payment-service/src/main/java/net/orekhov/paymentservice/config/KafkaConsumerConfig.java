@@ -28,7 +28,7 @@ import java.util.Map;
 public class KafkaConsumerConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(KafkaConsumerConfig.class); // Логгер для конфигурации
-    private final String bootstrapServers = "localhost:9093"; // Адрес Kafka сервера, замените на ваш
+    private final String bootstrapServers = "localhost:9092"; // Адрес Kafka сервера, замените на ваш
 
     /**
      * Конфигурация для Kafka Consumer.
