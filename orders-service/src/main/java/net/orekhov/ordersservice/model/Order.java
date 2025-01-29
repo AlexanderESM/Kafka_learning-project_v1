@@ -1,11 +1,16 @@
 package net.orekhov.ordersservice.model;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Класс, представляющий заказ.
  * Этот класс содержит информацию о заказе, такую как идентификатор заказа, идентификатор клиента, товар,
  * количество, цена и статус заказа.
  */
 public class Order {
+
+    private static final Logger logger = LoggerFactory.getLogger(Order.class);
 
     private String orderId; // Идентификатор заказа
     private String customerId; // Идентификатор клиента
@@ -31,6 +36,9 @@ public class Order {
         this.quantity = quantity;
         this.price = price;
         this.status = status;
+
+        // Логируем создание заказа
+        logger.info("Created Order: {}", this);
     }
 
     /**
@@ -48,6 +56,7 @@ public class Order {
      * @param orderId Идентификатор заказа
      */
     public void setOrderId(String orderId) {
+        logger.info("Order ID changed from {} to {}", this.orderId, orderId);
         this.orderId = orderId;
     }
 
@@ -66,6 +75,7 @@ public class Order {
      * @param customerId Идентификатор клиента
      */
     public void setCustomerId(String customerId) {
+        logger.info("Customer ID changed from {} to {}", this.customerId, customerId);
         this.customerId = customerId;
     }
 
@@ -84,6 +94,7 @@ public class Order {
      * @param product Название товара
      */
     public void setProduct(String product) {
+        logger.info("Product changed from {} to {}", this.product, product);
         this.product = product;
     }
 
@@ -102,6 +113,7 @@ public class Order {
      * @param quantity Количество товара
      */
     public void setQuantity(int quantity) {
+        logger.info("Quantity changed from {} to {}", this.quantity, quantity);
         this.quantity = quantity;
     }
 
@@ -120,6 +132,7 @@ public class Order {
      * @param price Цена товара
      */
     public void setPrice(double price) {
+        logger.info("Price changed from {} to {}", this.price, price);
         this.price = price;
     }
 
@@ -138,6 +151,7 @@ public class Order {
      * @param status Статус заказа
      */
     public void setStatus(String status) {
+        logger.info("Status changed from {} to {}", this.status, status);
         this.status = status;
     }
 

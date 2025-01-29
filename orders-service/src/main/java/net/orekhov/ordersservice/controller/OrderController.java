@@ -2,6 +2,8 @@ package net.orekhov.ordersservice.controller;
 
 import net.orekhov.ordersservice.model.Order;
 import net.orekhov.ordersservice.service.OrderService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/orders")
 public class OrderController {
 
+    private static final Logger logger = LoggerFactory.getLogger(OrderController.class);
     private final OrderService orderService;
 
     /**
@@ -33,8 +36,12 @@ public class OrderController {
      */
     @PostMapping("/create")
     public ResponseEntity<String> createOrder(@RequestBody Order order) {
+        logger.info("Creating order with ID: {}", order.getOrderId());
+
         // Вызов метода сервиса для создания заказа
         orderService.createOrder(order);
+
+        logger.info("Order with ID: {} created and sent to Kafka.", order.getOrderId());
 
         // Возвращаем ответ с сообщением о успешном создании заказа
         return ResponseEntity.ok("Order created and sent to Kafka: " + order.getOrderId());
@@ -48,8 +55,12 @@ public class OrderController {
      */
     @GetMapping("/{orderId}")
     public ResponseEntity<String> getOrderStatus(@PathVariable String orderId) {
-        // Получаем данные о заказе через сервис (в данном примере просто имитируем получение)
+        logger.info("Fetching status for order with ID: {}", orderId);
+
+        // Получаем данные о заказе через сервис
         Order order = orderService.getOrderDetails(orderId);
+
+        logger.info("Order ID: {} has status: {}", orderId, order.getStatus());
 
         // Возвращаем ответ с статусом заказа
         return ResponseEntity.ok("Order Status: " + order.getStatus());

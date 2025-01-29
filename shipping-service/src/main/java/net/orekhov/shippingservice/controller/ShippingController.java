@@ -3,6 +3,8 @@ package net.orekhov.shippingservice.controller;
 import net.orekhov.shippingservice.model.Shipment;
 import net.orekhov.shippingservice.model.ShippingOrder;
 import net.orekhov.shippingservice.service.ShippingService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +19,8 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/shipments")
 public class ShippingController {
+
+    private static final Logger logger = LoggerFactory.getLogger(ShippingController.class); // Логгер для ShippingController
 
     private final ShippingService shippingService;
 
@@ -38,8 +42,12 @@ public class ShippingController {
      */
     @PostMapping("/create")
     public ResponseEntity<Shipment> createShipment(@RequestBody ShippingOrder shippingOrder) {
+        logger.info("Received request to create shipment for order ID: {}", shippingOrder.getOrderId()); // Логируем получение запроса
+
         // Создаем новую отправку с использованием данных из заказа
         Shipment createdShipment = shippingService.createShipment(shippingOrder.getOrderId(), shippingOrder.getShippingMethod());
+
+        logger.info("Shipment created successfully with ID: {}", createdShipment.getShipmentId()); // Логируем успешное создание отправки
         return new ResponseEntity<>(createdShipment, HttpStatus.CREATED);
     }
 
@@ -51,10 +59,15 @@ public class ShippingController {
      */
     @GetMapping("/{shipmentId}")
     public ResponseEntity<Shipment> getShipmentDetails(@PathVariable Long shipmentId) {
+        logger.info("Received request to get shipment details for shipment ID: {}", shipmentId); // Логируем получение запроса
+
         Optional<Shipment> shipment = shippingService.getShipmentDetails(shipmentId);
-        // Если отправка найдена, возвращаем ее, иначе статус 404
+
         return shipment.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
+                .orElseGet(() -> {
+                    logger.warn("Shipment with ID {} not found", shipmentId); // Логируем предупреждение, если отправка не найдена
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+                });
     }
 
     /**
@@ -65,10 +78,15 @@ public class ShippingController {
      */
     @GetMapping("/{shipmentId}/status")
     public ResponseEntity<String> getShipmentStatus(@PathVariable Long shipmentId) {
+        logger.info("Received request to get shipment status for shipment ID: {}", shipmentId); // Логируем получение запроса
+
         Optional<String> status = shippingService.getShipmentStatus(shipmentId);
-        // Если статус отправки найден, возвращаем его, иначе статус 404
+
         return status.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("Shipment not found"));
+                .orElseGet(() -> {
+                    logger.warn("Shipment status for shipment ID {} not found", shipmentId); // Логируем предупреждение, если статус не найден
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Shipment not found");
+                });
     }
 
     /**
@@ -80,10 +98,15 @@ public class ShippingController {
      */
     @PutMapping("/{shipmentId}/status")
     public ResponseEntity<Shipment> updateShipmentStatus(@PathVariable Long shipmentId, @RequestParam String status) {
+        logger.info("Received request to update shipment status for shipment ID: {} to status: {}", shipmentId, status); // Логируем получение запроса
+
         Optional<Shipment> updatedShipment = shippingService.updateShipmentStatus(shipmentId, status);
-        // Если отправка найдена и статус обновлен, возвращаем ее, иначе статус 404
+
         return updatedShipment.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
+                .orElseGet(() -> {
+                    logger.warn("Shipment with ID {} not found for status update", shipmentId); // Логируем предупреждение, если отправка не найдена
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+                });
     }
 
     /**
@@ -94,8 +117,10 @@ public class ShippingController {
      */
     @DeleteMapping("/{shipmentId}")
     public ResponseEntity<Void> deleteShipment(@PathVariable Long shipmentId) {
+        logger.info("Received request to delete shipment with ID: {}", shipmentId); // Логируем получение запроса
+
         boolean isDeleted = shippingService.deleteShipment(shipmentId);
-        // Если удаление прошло успешно, возвращаем статус 204, иначе статус 404
+
         return isDeleted ? ResponseEntity.noContent().build()
                 : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }

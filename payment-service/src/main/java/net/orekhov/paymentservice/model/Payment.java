@@ -1,10 +1,15 @@
 package net.orekhov.paymentservice.model;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Модель платежа, представляющая информацию о платеже.
  * Содержит идентификатор платежа, статус и сумму.
  */
 public class Payment {
+
+    private static final Logger logger = LoggerFactory.getLogger(Payment.class); // Логгер для модели Payment
 
     // Идентификатор платежа
     private Long id;
@@ -30,6 +35,7 @@ public class Payment {
      * @param id Идентификатор платежа.
      */
     public void setId(Long id) {
+        logger.debug("Setting payment ID: {}", id); // Логируем установку ID
         this.id = id;
     }
 
@@ -48,6 +54,7 @@ public class Payment {
      * @param status Статус платежа (например, "pending", "completed").
      */
     public void setStatus(String status) {
+        logger.debug("Setting payment status: {}", status); // Логируем установку статуса
         this.status = status;
     }
 
@@ -66,6 +73,7 @@ public class Payment {
      * @param amount Сумма платежа.
      */
     public void setAmount(Double amount) {
+        logger.debug("Setting payment amount: {}", amount); // Логируем установку суммы
         this.amount = amount;
     }
 
@@ -77,10 +85,12 @@ public class Payment {
      */
     @Override
     public String toString() {
-        return "Payment{" +
+        String result = "Payment{" +
                 "id=" + id +
                 ", status='" + status + '\'' +
                 ", amount=" + amount +
                 '}';
+        logger.debug("Payment object toString: {}", result); // Логируем вызов toString
+        return result;
     }
 }
